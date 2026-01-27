@@ -14,6 +14,7 @@
   <name>crawler4j</name>
   <description>crawler4j: Open Source Web Crawler for Java</description>
   <url>https://github.com/yasserg/crawler4j</url>
+  <packaging>jar</packaging>
 
   <licenses>
     <license>

@@ -10,15 +10,16 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>crawler4j-examples-base</artifactId>
-  <name>crawler4j-examples-base</name>
+  <artifactId>crawler4j-examples</artifactId>
+  <name>crawler4j-examples</name>
+  <!-- Configure packaging to pom to avoid creating a jar for examples -->
+  <packaging>pom</packaging>
 
   <dependencies>
     <dependency>
       <groupId>edu.uci.ics</groupId>
       <artifactId>crawler4j</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
