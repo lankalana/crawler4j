@@ -32,6 +32,7 @@
 				<artifactId>spotless-maven-plugin</artifactId>
 				<version>3.2.0</version>
 				<configuration>
+					<ratchetFrom>origin/master</ratchetFrom>
 					<formats>
 						<format>
 							<includes>
@@ -135,6 +136,11 @@
 						<phase>compile</phase>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.7.0</version>
 			</plugin>
 		</plugins>
 	</build>
