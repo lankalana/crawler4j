@@ -12,13 +12,13 @@ import com.github.lankalana.crawler4j.url.WebURL;
 
 public class NetTest {
 
-	private static final Net STANDARD = new Net(new CrawlConfig(), null);
+	private static final Net STANDARD = new Net(new CrawlConfig());
 	private static final Net ALLOW_SINGLE_LEVEL_DOMAIN;
 
 	static {
 		CrawlConfig config = new CrawlConfig();
 		config.setAllowSingleLevelDomain(true);
-		ALLOW_SINGLE_LEVEL_DOMAIN = new Net(config, null);
+		ALLOW_SINGLE_LEVEL_DOMAIN = new Net(config);
 	}
 
 	@Test

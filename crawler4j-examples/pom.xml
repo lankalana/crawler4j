@@ -14,6 +14,10 @@
 	<!-- Configure packaging to pom to avoid creating a jar for examples -->
 	<packaging>pom</packaging>
 	<name>crawler4j-examples</name>
+	<properties>
+		<maven.install.skip>true</maven.install.skip>
+		<maven.deploy.skip>true</maven.deploy.skip>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>com.github.lankalana</groupId>

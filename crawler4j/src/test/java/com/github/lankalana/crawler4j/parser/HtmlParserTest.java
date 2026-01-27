@@ -14,7 +14,7 @@ public class HtmlParserTest {
 
 	@Test
 	public void testCanParseHtmlPage() throws Exception {
-		JsoupHtmlParser parser = new JsoupHtmlParser(new CrawlConfig(), null);
+		JsoupHtmlParser parser = new JsoupHtmlParser(new CrawlConfig());
 		WebURL url = new WebURL();
 		url.setURL("http://wiki.c2.com/");
 		File file = new File("src/test/resources/html/wiki.c2.com.html");

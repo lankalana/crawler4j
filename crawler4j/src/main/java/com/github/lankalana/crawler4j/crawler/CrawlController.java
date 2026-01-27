@@ -18,7 +18,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,6 @@ import com.github.lankalana.crawler4j.frontier.DocIDServer;
 import com.github.lankalana.crawler4j.frontier.Frontier;
 import com.github.lankalana.crawler4j.parser.Parser;
 import com.github.lankalana.crawler4j.robotstxt.RobotstxtServer;
-import com.github.lankalana.crawler4j.url.TLDList;
 import com.github.lankalana.crawler4j.url.URLCanonicalizer;
 import com.github.lankalana.crawler4j.url.WebURL;
 import com.github.lankalana.crawler4j.util.IO;
@@ -69,28 +67,16 @@ public class CrawlController {
 	protected RobotstxtServer robotstxtServer;
 	protected Frontier frontier;
 	protected DocIDServer docIdServer;
-	protected TLDList tldList;
 
 	protected final Object waitingLock = new Object();
 	protected Parser parser;
 
 	public CrawlController(CrawlConfig config, PageFetcher pageFetcher, RobotstxtServer robotstxtServer)
 			throws Exception {
-		this(config, pageFetcher, null, robotstxtServer, null);
+		this(config, pageFetcher, null, robotstxtServer);
 	}
 
-	public CrawlController(
-			CrawlConfig config, PageFetcher pageFetcher, RobotstxtServer robotstxtServer, TLDList tldList)
-			throws Exception {
-		this(config, pageFetcher, null, robotstxtServer, tldList);
-	}
-
-	public CrawlController(
-			CrawlConfig config,
-			PageFetcher pageFetcher,
-			Parser parser,
-			RobotstxtServer robotstxtServer,
-			TLDList tldList)
+	public CrawlController(CrawlConfig config, PageFetcher pageFetcher, Parser parser, RobotstxtServer robotstxtServer)
 			throws Exception {
 		config.validate();
 		this.config = config;
@@ -105,7 +91,6 @@ public class CrawlController {
 			}
 		}
 
-		this.tldList = tldList == null ? new TLDList(config) : tldList;
 		URLCanonicalizer.setHaltOnError(config.isHaltOnError());
 
 		boolean resumable = config.isResumableCrawling();
@@ -128,7 +113,7 @@ public class CrawlController {
 		frontier = new Frontier(envHome, config);
 
 		this.pageFetcher = pageFetcher;
-		this.parser = parser == null ? new Parser(config, tldList) : parser;
+		this.parser = parser == null ? new Parser(config) : parser;
 		this.robotstxtServer = robotstxtServer;
 
 		finished = false;
@@ -141,11 +126,11 @@ public class CrawlController {
 		return parser;
 	}
 
-	public interface WebCrawlerFactory<T extends @NonNull WebCrawler> {
+	public interface WebCrawlerFactory<T extends WebCrawler> {
 		T newInstance() throws Exception;
 	}
 
-	private static class SingleInstanceFactory<T extends @NonNull WebCrawler> implements WebCrawlerFactory<T> {
+	private static class SingleInstanceFactory<T extends WebCrawler> implements WebCrawlerFactory<T> {
 
 		final T instance;
 
@@ -159,7 +144,7 @@ public class CrawlController {
 		}
 	}
 
-	private static class DefaultWebCrawlerFactory<T extends @NonNull WebCrawler> implements WebCrawlerFactory<T> {
+	private static class DefaultWebCrawlerFactory<T extends WebCrawler> implements WebCrawlerFactory<T> {
 		final Class<T> clazz;
 
 		DefaultWebCrawlerFactory(Class<T> clazz) {
@@ -167,7 +152,7 @@ public class CrawlController {
 		}
 
 		@Override
-		public @NonNull T newInstance() throws Exception {
+		public T newInstance() throws Exception {
 			try {
 				T instance = clazz.getDeclaredConstructor().newInstance();
 				return instance;
@@ -185,7 +170,7 @@ public class CrawlController {
 	 * @param numberOfCrawlers the number of concurrent threads that will be contributing in this crawling session.
 	 * @param <T> Your class extending WebCrawler
 	 */
-	public <T extends @NonNull WebCrawler> void start(Class<T> clazz, int numberOfCrawlers) {
+	public <T extends WebCrawler> void start(Class<T> clazz, int numberOfCrawlers) {
 		this.start(new DefaultWebCrawlerFactory<>(clazz), numberOfCrawlers, true);
 	}
 
@@ -196,7 +181,7 @@ public class CrawlController {
 	 * @param instance the instance of a class that implements the logic for crawler threads
 	 * @param <T> Your class extending WebCrawler
 	 */
-	public <T extends @NonNull WebCrawler> void start(T instance) {
+	public <T extends WebCrawler> void start(T instance) {
 		this.start(new SingleInstanceFactory<>(instance), 1, true);
 	}
 
@@ -207,7 +192,7 @@ public class CrawlController {
 	 * @param numberOfCrawlers the number of concurrent threads that will be contributing in this crawling session.
 	 * @param <T> Your class extending WebCrawler
 	 */
-	public <T extends @NonNull WebCrawler> void start(WebCrawlerFactory<T> crawlerFactory, int numberOfCrawlers) {
+	public <T extends WebCrawler> void start(WebCrawlerFactory<T> crawlerFactory, int numberOfCrawlers) {
 		this.start(crawlerFactory, numberOfCrawlers, true);
 	}
 
@@ -218,7 +203,7 @@ public class CrawlController {
 	 * @param numberOfCrawlers the number of concurrent threads that will be contributing in this crawling session.
 	 * @param <T> Your class extending WebCrawler
 	 */
-	public <T extends @NonNull WebCrawler> void startNonBlocking(
+	public <T extends WebCrawler> void startNonBlocking(
 			WebCrawlerFactory<T> crawlerFactory, final int numberOfCrawlers) {
 		this.start(crawlerFactory, numberOfCrawlers, false);
 	}
@@ -231,11 +216,11 @@ public class CrawlController {
 	 * @param numberOfCrawlers the number of concurrent threads that will be contributing in this crawling session.
 	 * @param <T> Your class extending WebCrawler
 	 */
-	public <T extends @NonNull WebCrawler> void startNonBlocking(Class<T> clazz, int numberOfCrawlers) {
+	public <T extends WebCrawler> void startNonBlocking(Class<T> clazz, int numberOfCrawlers) {
 		start(new DefaultWebCrawlerFactory<>(clazz), numberOfCrawlers, false);
 	}
 
-	protected <T extends @NonNull WebCrawler> void start(
+	protected <T extends WebCrawler> void start(
 			final WebCrawlerFactory<T> crawlerFactory, final int numberOfCrawlers, boolean isBlocking) {
 		try {
 			finished = false;
@@ -483,7 +468,6 @@ public class CrawlController {
 			}
 
 			WebURL webUrl = new WebURL();
-			webUrl.setTldList(tldList);
 			webUrl.setURL(canonicalUrl);
 			webUrl.setDocid(docId);
 			webUrl.setDepth((short) 0);
@@ -604,9 +588,5 @@ public class CrawlController {
 
 	private synchronized void setError(Throwable e) {
 		this.error = e;
-	}
-
-	public TLDList getTldList() {
-		return tldList;
 	}
 }

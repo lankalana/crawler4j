@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.github.lankalana.crawler4j.crawler.CrawlConfig;
 import com.github.lankalana.crawler4j.crawler.Page;
 import com.github.lankalana.crawler4j.crawler.exceptions.ParseException;
-import com.github.lankalana.crawler4j.url.TLDList;
 import com.github.lankalana.crawler4j.url.URLCanonicalizer;
 import com.github.lankalana.crawler4j.url.WebURL;
 
@@ -27,11 +26,9 @@ public class JsoupHtmlParser implements com.github.lankalana.crawler4j.parser.Ht
 	private static final int MAX_ANCHOR_LENGTH = 100;
 
 	private final CrawlConfig config;
-	private final TLDList tldList;
 
-	public JsoupHtmlParser(CrawlConfig config, TLDList tldList) throws InstantiationException, IllegalAccessException {
+	public JsoupHtmlParser(CrawlConfig config) throws InstantiationException, IllegalAccessException {
 		this.config = config;
-		this.tldList = tldList;
 	}
 
 	public HtmlParseData parse(Page page, String contextURL) throws ParseException {
@@ -109,7 +106,6 @@ public class JsoupHtmlParser implements com.github.lankalana.crawler4j.parser.Ht
 				String url = URLCanonicalizer.getCanonicalURL(href, contextURL, hrefCharset);
 				if (url != null) {
 					WebURL webURL = new WebURL();
-					webURL.setTldList(tldList);
 					webURL.setURL(url);
 					webURL.setTag(urlAnchorPair.getTag());
 					webURL.setAnchor(urlAnchorPair.getAnchor());

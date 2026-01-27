@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.github.lankalana.crawler4j.crawler.CrawlConfig;
 import com.github.lankalana.crawler4j.crawler.Page;
 import com.github.lankalana.crawler4j.crawler.exceptions.ParseException;
-import com.github.lankalana.crawler4j.url.TLDList;
 import com.github.lankalana.crawler4j.util.Net;
 import com.github.lankalana.crawler4j.util.Util;
 
@@ -33,14 +32,14 @@ public class Parser {
 
 	private final Net net;
 
-	public Parser(CrawlConfig config, TLDList tldList) throws IllegalAccessException, InstantiationException {
-		this(config, new JsoupHtmlParser(config, tldList), tldList);
+	public Parser(CrawlConfig config) throws IllegalAccessException, InstantiationException {
+		this(config, new JsoupHtmlParser(config));
 	}
 
-	public Parser(CrawlConfig config, HtmlParser htmlParser, TLDList tldList) {
+	public Parser(CrawlConfig config, HtmlParser htmlParser) {
 		this.config = config;
 		this.htmlContentParser = htmlParser;
-		this.net = new Net(config, tldList);
+		this.net = new Net(config);
 	}
 
 	public void parse(Page page, String contextURL) throws NotAllowedContentException, ParseException {

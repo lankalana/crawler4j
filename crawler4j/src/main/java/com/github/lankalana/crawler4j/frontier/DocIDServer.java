@@ -13,11 +13,9 @@
 package com.github.lankalana.crawler4j.frontier;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
-import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +25,8 @@ import com.github.lankalana.crawler4j.crawler.CrawlConfig;
 public class DocIDServer {
 	private static final Logger logger = LoggerFactory.getLogger(DocIDServer.class);
 
-	private final DB db;
-	private final HTreeMap<String, Integer> docIDsDB;
+	private final FileStore<HashMap<String, Integer>> store;
+	private final Map<String, Integer> docIDsDB;
 	private static final String DATABASE_NAME = "DocIDs";
 
 	private final Object mutex = new Object();
@@ -41,14 +39,9 @@ public class DocIDServer {
 		this.config = config;
 		this.resumable = config.isResumableCrawling();
 		File dbFile = new File(storageFolder, DATABASE_NAME + ".db");
-		DBMaker.Maker maker = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported();
-		if (resumable) {
-			maker = maker.transactionEnable();
-		}
-		this.db = maker.make();
 		lastDocID = 0;
-		docIDsDB =
-				db.hashMap(DATABASE_NAME, Serializer.STRING, Serializer.INTEGER).createOrOpen();
+		this.store = new FileStore<>(dbFile);
+		this.docIDsDB = resumable ? store.load(HashMap::new) : new HashMap<>();
 		if (resumable) {
 			int docCount = getDocCount();
 			if (docCount > 0) {
@@ -145,7 +138,6 @@ public class DocIDServer {
 	public void close() {
 		try {
 			commitIfNeeded();
-			db.close();
 		} catch (RuntimeException e) {
 			logger.error("Exception thrown while closing DocIDServer", e);
 		}
@@ -153,7 +145,7 @@ public class DocIDServer {
 
 	private void commitIfNeeded() {
 		if (resumable) {
-			db.commit();
+			store.save(new HashMap<>(docIDsDB));
 		}
 	}
 }

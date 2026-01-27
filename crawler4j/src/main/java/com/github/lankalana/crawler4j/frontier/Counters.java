@@ -13,11 +13,9 @@
 package com.github.lankalana.crawler4j.frontier;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ public class Counters {
 	}
 
 	private static final String DATABASE_NAME = "Statistics";
-	private final DB db;
+	private final FileStore<HashMap<String, Long>> store;
 	private CrawlConfig config;
 	private final boolean resumable;
 
@@ -51,13 +49,8 @@ public class Counters {
 		 * is crashed or terminated unexpectedly.
 		 */
 		File dbFile = new File(storageFolder, DATABASE_NAME + ".db");
-		DBMaker.Maker maker = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported();
-		if (resumable) {
-			maker = maker.transactionEnable();
-		}
-		db = maker.make();
-		counterValues =
-				db.hashMap(DATABASE_NAME, Serializer.STRING, Serializer.LONG).createOrOpen();
+		this.store = new FileStore<>(dbFile);
+		this.counterValues = resumable ? store.load(HashMap::new) : new HashMap<>();
 	}
 
 	public long getValue(String name) {
@@ -99,7 +92,6 @@ public class Counters {
 	public void close() {
 		try {
 			commitIfNeeded();
-			db.close();
 		} catch (RuntimeException e) {
 			logger.error("Exception thrown while trying to close statisticsDB", e);
 		}
@@ -107,7 +99,7 @@ public class Counters {
 
 	private void commitIfNeeded() {
 		if (resumable) {
-			db.commit();
+			store.save(new HashMap<>(counterValues));
 		}
 	}
 }

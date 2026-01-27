@@ -16,18 +16,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.mapdb.BTreeMap;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
+import java.util.TreeMap;
 
 import com.github.lankalana.crawler4j.url.WebURL;
 
 /** @author Yasser Ganjisaffar */
 public class WorkQueues {
-	private final DB db;
-	private final BTreeMap<Long, byte[]> urlsDB;
+	private final FileStore<TreeMap<Long, byte[]>> store;
+	private final TreeMap<Long, byte[]> urlsDB;
 	private final boolean resumable;
 
 	private final WebURLSerializer webURLSerializer;
@@ -37,18 +33,14 @@ public class WorkQueues {
 	public WorkQueues(File storageFolder, String dbName, boolean resumable) {
 		this.resumable = resumable;
 		File dbFile = new File(storageFolder, dbName + ".db");
-		DBMaker.Maker maker = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported();
-		if (resumable) {
-			maker = maker.transactionEnable();
-		}
-		this.db = maker.make();
-		this.urlsDB = db.treeMap(dbName, Serializer.LONG, Serializer.BYTE_ARRAY).createOrOpen();
+		this.store = new FileStore<>(dbFile);
+		this.urlsDB = resumable ? store.load(TreeMap::new) : new TreeMap<>();
 		this.webURLSerializer = new WebURLSerializer();
 	}
 
 	protected void commit() {
 		if (resumable) {
-			db.commit();
+			store.save(urlsDB);
 		}
 	}
 
@@ -100,24 +92,31 @@ public class WorkQueues {
 	}
 
 	public void put(WebURL url) {
-		urlsDB.put(getDatabaseEntryKey(url), webURLSerializer.toBytes(url));
-		commit();
+		synchronized (mutex) {
+			urlsDB.put(getDatabaseEntryKey(url), webURLSerializer.toBytes(url));
+			commit();
+		}
 	}
 
 	public long getLength() {
-		return urlsDB.size();
+		synchronized (mutex) {
+			return urlsDB.size();
+		}
 	}
 
 	public void close() {
-		commit();
-		db.close();
+		synchronized (mutex) {
+			commit();
+		}
 	}
 
 	protected boolean removeByKey(long key) {
-		boolean removed = urlsDB.remove(key) != null;
-		if (removed) {
-			commit();
+		synchronized (mutex) {
+			boolean removed = urlsDB.remove(key) != null;
+			if (removed) {
+				commit();
+			}
+			return removed;
 		}
-		return removed;
 	}
 }
