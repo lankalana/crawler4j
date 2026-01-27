@@ -90,11 +90,6 @@ public class CrawlConfig {
     private boolean includeBinaryContentInCrawling = false;
 
     /**
-     * Should we process binary content such as image, audio, ... using TIKA?
-     */
-    private boolean processBinaryContentInCrawling = false;
-
-    /**
      * Maximum Connections per host
      */
     private int maxConnectionsPerHost = 100;
@@ -399,17 +394,6 @@ public class CrawlConfig {
      */
     public void setIncludeBinaryContentInCrawling(boolean includeBinaryContentInCrawling) {
         this.includeBinaryContentInCrawling = includeBinaryContentInCrawling;
-    }
-
-    public boolean isProcessBinaryContentInCrawling() {
-        return processBinaryContentInCrawling;
-    }
-
-    /**
-     * Should we process binary content such as images, audio, ... using TIKA?
-     */
-    public void setProcessBinaryContentInCrawling(boolean processBinaryContentInCrawling) {
-        this.processBinaryContentInCrawling = processBinaryContentInCrawling;
     }
 
     public int getMaxConnectionsPerHost() {

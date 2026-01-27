@@ -17,7 +17,6 @@
 
 package edu.uci.ics.crawler4j.parser;
 
-import org.apache.tika.language.LanguageIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,18 +40,8 @@ public class Parser {
 
     private final Net net;
 
-    @Deprecated
-    public Parser(CrawlConfig config) throws IllegalAccessException, InstantiationException {
-        this(config, new TikaHtmlParser(config, null));
-    }
-
     public Parser(CrawlConfig config, TLDList tldList) throws IllegalAccessException, InstantiationException {
-        this(config, new TikaHtmlParser(config, tldList), tldList);
-    }
-
-    @Deprecated
-    public Parser(CrawlConfig config, HtmlParser htmlParser) {
-        this(config, htmlParser, null);
+        this(config, new JsoupHtmlParser(config, tldList), tldList);
     }
 
     public Parser(CrawlConfig config, HtmlParser htmlParser, TLDList tldList) {
@@ -65,25 +54,10 @@ public class Parser {
         if (Util.hasBinaryContent(page.getContentType())) { // BINARY
             BinaryParseData parseData = new BinaryParseData();
             if (config.isIncludeBinaryContentInCrawling()) {
-                if (config.isProcessBinaryContentInCrawling()) {
-                    try {
-                        parseData.setBinaryContent(page.getContentData());
-                    } catch (Exception e) {
-                        if (config.isHaltOnError()) {
-                            throw new ParseException(e);
-                        } else {
-                            logger.error("Error parsing file", e);
-                        }
-                    }
-                } else {
-                    parseData.setHtml("<html></html>");
-                }
+                parseData.setBinaryContent(page.getContentData());
                 page.setParseData(parseData);
-                if (parseData.getHtml() == null) {
-                    throw new ParseException();
-                }
-                parseData.setOutgoingUrls(net.extractUrls(parseData.getHtml()));
-            } else {
+            }
+            else {
                 throw new NotAllowedContentException();
             }
         } else if (Util.hasCssTextContent(page.getContentType())) { // text/css
@@ -123,10 +97,6 @@ public class Parser {
             if (page.getContentCharset() == null) {
                 page.setContentCharset(parsedData.getContentCharset());
             }
-
-            // Please note that identifying language takes less than 10 milliseconds
-            LanguageIdentifier languageIdentifier = new LanguageIdentifier(parsedData.getText());
-            page.setLanguage(languageIdentifier.getLanguage());
 
             page.setParseData(parsedData);
 
