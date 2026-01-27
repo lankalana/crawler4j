@@ -3,6 +3,7 @@ package edu.uci.ics.crawler4j.url;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class TLDList {
             InputStream stream;
             String filename = config.getPublicSuffixLocalFile();
             if (filename == null) {
-                URL url = new URL(config.getPublicSuffixSourceUrl());
+                URL url = URI.create(config.getPublicSuffixSourceUrl()).toURL();
                 stream = url.openStream();
             } else {
                 stream = new FileInputStream(filename);

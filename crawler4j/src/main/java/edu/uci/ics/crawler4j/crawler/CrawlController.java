@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,11 +145,11 @@ public class CrawlController {
         return parser;
     }
 
-    public interface WebCrawlerFactory<T extends WebCrawler> {
+    public interface WebCrawlerFactory<T extends @NonNull WebCrawler> {
         T newInstance() throws Exception;
     }
 
-    private static class SingleInstanceFactory<T extends WebCrawler>
+    private static class SingleInstanceFactory<T extends @NonNull WebCrawler>
         implements WebCrawlerFactory<T> {
 
         final T instance;
@@ -163,7 +164,7 @@ public class CrawlController {
         }
     }
 
-    private static class DefaultWebCrawlerFactory<T extends WebCrawler>
+    private static class DefaultWebCrawlerFactory<T extends @NonNull WebCrawler>
         implements WebCrawlerFactory<T> {
         final Class<T> clazz;
 
@@ -172,9 +173,10 @@ public class CrawlController {
         }
 
         @Override
-        public T newInstance() throws Exception {
+        public @NonNull T newInstance() throws Exception {
             try {
-                return clazz.newInstance();
+                T instance = clazz.getDeclaredConstructor().newInstance();
+                return instance;
             } catch (ReflectiveOperationException e) {
                 throw e;
             }
@@ -192,7 +194,7 @@ public class CrawlController {
      *            this crawling session.
      * @param <T> Your class extending WebCrawler
      */
-    public <T extends WebCrawler> void start(Class<T> clazz, int numberOfCrawlers) {
+    public <T extends @NonNull WebCrawler> void start(Class<T> clazz, int numberOfCrawlers) {
         this.start(new DefaultWebCrawlerFactory<>(clazz), numberOfCrawlers, true);
     }
 
@@ -204,7 +206,7 @@ public class CrawlController {
      *            the instance of a class that implements the logic for crawler threads
      * @param <T> Your class extending WebCrawler
      */
-    public <T extends WebCrawler> void start(T instance) {
+    public <T extends @NonNull WebCrawler> void start(T instance) {
         this.start(new SingleInstanceFactory<>(instance), 1, true);
     }
 
@@ -218,7 +220,7 @@ public class CrawlController {
      *            this crawling session.
      * @param <T> Your class extending WebCrawler
      */
-    public <T extends WebCrawler> void start(WebCrawlerFactory<T> crawlerFactory,
+    public <T extends @NonNull WebCrawler> void start(WebCrawlerFactory<T> crawlerFactory,
                                              int numberOfCrawlers) {
         this.start(crawlerFactory, numberOfCrawlers, true);
     }
@@ -233,7 +235,7 @@ public class CrawlController {
      *            this crawling session.
      * @param <T> Your class extending WebCrawler
      */
-    public <T extends WebCrawler> void startNonBlocking(WebCrawlerFactory<T> crawlerFactory,
+    public <T extends @NonNull WebCrawler> void startNonBlocking(WebCrawlerFactory<T> crawlerFactory,
                                                         final int numberOfCrawlers) {
         this.start(crawlerFactory, numberOfCrawlers, false);
     }
@@ -249,11 +251,11 @@ public class CrawlController {
      *            this crawling session.
      * @param <T> Your class extending WebCrawler
      */
-    public <T extends WebCrawler> void startNonBlocking(Class<T> clazz, int numberOfCrawlers) {
+    public <T extends @NonNull WebCrawler> void startNonBlocking(Class<T> clazz, int numberOfCrawlers) {
         start(new DefaultWebCrawlerFactory<>(clazz), numberOfCrawlers, false);
     }
 
-    protected <T extends WebCrawler> void start(final WebCrawlerFactory<T> crawlerFactory,
+    protected <T extends @NonNull WebCrawler> void start(final WebCrawlerFactory<T> crawlerFactory,
                                                 final int numberOfCrawlers, boolean isBlocking) {
         try {
             finished = false;

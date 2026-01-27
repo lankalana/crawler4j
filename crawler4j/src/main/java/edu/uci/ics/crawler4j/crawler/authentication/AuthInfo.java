@@ -1,6 +1,7 @@
 package edu.uci.ics.crawler4j.crawler.authentication;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import javax.swing.text.html.FormSubmitEvent.MethodType;
@@ -48,7 +49,7 @@ public abstract class AuthInfo {
             throws MalformedURLException {
         this.authenticationType = authenticationType;
         this.httpMethod = httpMethod;
-        URL url = new URL(loginUrl);
+        URL url = URI.create(loginUrl).toURL();
         this.protocol = url.getProtocol();
         this.host = url.getHost();
         this.port =

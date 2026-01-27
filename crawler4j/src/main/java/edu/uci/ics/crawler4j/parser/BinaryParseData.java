@@ -20,13 +20,9 @@ package edu.uci.ics.crawler4j.parser;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import edu.uci.ics.crawler4j.url.WebURL;
 
 public class BinaryParseData implements ParseData {
-    private static final Logger logger = LoggerFactory.getLogger(BinaryParseData.class);
 
     private Set<WebURL> outgoingUrls = new HashSet<>();
     private byte[] data;

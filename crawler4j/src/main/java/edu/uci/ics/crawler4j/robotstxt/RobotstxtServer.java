@@ -16,11 +16,7 @@
 package edu.uci.ics.crawler4j.robotstxt;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,16 +48,9 @@ public class RobotstxtServer {
 
     protected PageFetcher pageFetcher;
 
-    private final int maxBytes;
-
     public RobotstxtServer(RobotstxtConfig config, PageFetcher pageFetcher) {
-        this(config, pageFetcher, 16384);
-    }
-
-    public RobotstxtServer(RobotstxtConfig config, PageFetcher pageFetcher, int maxBytes) {
         this.config = config;
         this.pageFetcher = pageFetcher;
-        this.maxBytes = maxBytes;
     }
 
     private static String getHost(URL url) {
@@ -79,7 +68,7 @@ public class RobotstxtServer {
             return true;
         }
         try {
-            URL url = new URL(webURL.getURL());
+            URL url = URI.create(webURL.getURL()).toURL();
             String host = getHost(url);
             String path = url.getPath();
 
@@ -130,6 +119,9 @@ public class RobotstxtServer {
                     // Done on all other occasions
                     break;
                 }
+            }
+            if (fetchResult == null) {
+                throw new IOException("Couldn't fetch robots.txt: " + robotsTxtUrl.getURL());
             }
 
             if (fetchResult.getStatusCode() == HttpStatus.SC_OK) {

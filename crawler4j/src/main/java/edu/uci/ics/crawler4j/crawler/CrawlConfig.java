@@ -333,6 +333,8 @@ public class CrawlConfig {
     public void setDefaultHeaders(Collection<? extends Header> defaultHeaders) {
         Collection<BasicHeader> copiedHeaders = new HashSet<>();
         for (Header header : defaultHeaders) {
+            if (header == null)
+                continue;
             copiedHeaders.add(new BasicHeader(header.getName(), header.getValue()));
         }
         this.defaultHeaders = copiedHeaders;

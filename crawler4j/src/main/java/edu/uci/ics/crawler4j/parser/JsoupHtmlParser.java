@@ -5,12 +5,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
@@ -129,9 +124,6 @@ public class JsoupHtmlParser implements edu.uci.ics.crawler4j.parser.HtmlParser 
     }
 
     private String extractBodyText(Document document) {
-        if (document.body() == null) {
-            return "";
-        }
         return document.body().text().trim();
     }
 
