@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>edu.uci.ics</groupId>
+    <groupId>com.github.lankalana</groupId>
     <artifactId>crawler4j-parent</artifactId>
     <version>4.5.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
@@ -17,7 +17,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>edu.uci.ics</groupId>
+      <groupId>com.github.lankalana</groupId>
       <artifactId>crawler4j</artifactId>
       <version>${project.version}</version>
     </dependency>

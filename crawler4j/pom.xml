@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>edu.uci.ics</groupId>
+    <groupId>com.github.lankalana</groupId>
     <artifactId>crawler4j-parent</artifactId>
     <version>4.5.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
@@ -13,7 +13,7 @@
   <artifactId>crawler4j</artifactId>
   <name>crawler4j</name>
   <description>crawler4j: Open Source Web Crawler for Java</description>
-  <url>https://github.com/yasserg/crawler4j</url>
+  <url>https://github.com/lankalana/crawler4j</url>
   <packaging>jar</packaging>
 
   <licenses>
@@ -25,15 +25,19 @@
 
   <developers>
     <developer>
+      <id>lankalana</id>
+      <name>@lankalana</name>
+    </developer>
+    <developer>
       <id>yasserg</id>
       <name>Yasser Ganjisaffar</name>
     </developer>
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:yasserg/crawler4j.git</connection>
-    <developerConnection>scm:git:git@github.com:yasserg/crawler4j.git</developerConnection>
-    <url>https://github.com/yasserg/crawler4j</url>
+    <connection>scm:git:git@github.com:lankalana/crawler4j.git</connection>
+    <developerConnection>scm:git:git@github.com:lankalana/crawler4j.git</developerConnection>
+    <url>https://github.com/lankalana/crawler4j</url>
   </scm>
 
   <dependencies>
