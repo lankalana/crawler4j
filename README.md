@@ -28,12 +28,6 @@ Add the following dependency to your pom.xml:
     </dependency>
 ```
 
-### Using Gradle
-
-Add the following dependency to your build.gradle file:
-
-    compile group: 'edu.uci.ics', name: 'crawler4j', version: '4.4.0'
-
 ## Quickstart
 You need to create a crawler class that extends WebCrawler. This class decides which URLs
 should be crawled and handles the downloaded page. The following is a sample
