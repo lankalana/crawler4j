@@ -22,13 +22,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.EnvironmentConfig;
 
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.frontier.DocIDServer;
@@ -82,8 +78,6 @@ public class CrawlController {
     protected TLDList tldList;
 
     protected final Object waitingLock = new Object();
-    protected final Environment env;
-
     protected Parser parser;
 
     public CrawlController(CrawlConfig config, PageFetcher pageFetcher,
@@ -117,12 +111,6 @@ public class CrawlController {
 
         boolean resumable = config.isResumableCrawling();
 
-        EnvironmentConfig envConfig = new EnvironmentConfig();
-        envConfig.setAllowCreate(true);
-        envConfig.setTransactional(resumable);
-        envConfig.setLocking(resumable);
-        envConfig.setLockTimeout(config.getDbLockTimeout(), TimeUnit.MILLISECONDS);
-
         File envHome = new File(config.getCrawlStorageFolder() + "/frontier");
         if (!envHome.exists()) {
             if (envHome.mkdir()) {
@@ -139,9 +127,8 @@ public class CrawlController {
                         " ( as you have configured resumable crawling to false )");
         }
 
-        env = new Environment(envHome, envConfig);
-        docIdServer = new DocIDServer(env, config);
-        frontier = new Frontier(env, config);
+        docIdServer = new DocIDServer(envHome, config);
+        frontier = new Frontier(envHome, config);
 
         this.pageFetcher = pageFetcher;
         this.parser = parser == null ? new Parser(config, tldList) : parser;
@@ -380,8 +367,6 @@ public class CrawlController {
 
                                         finished = true;
                                         waitingLock.notifyAll();
-                                        env.close();
-
                                         return;
                                     }
                                 }
@@ -396,7 +381,6 @@ public class CrawlController {
                                 docIdServer.close();
                                 pageFetcher.shutDown();
                                 waitingLock.notifyAll();
-                                env.close();
                             }
                         } else {
                             logger.error("Unexpected Error", e);

@@ -23,7 +23,7 @@
 
     <slf4j.version>2.0.17</slf4j.version>
     <httpclient.version>4.5.14</httpclient.version>
-    <je.version>18.3.12</je.version>
+    <mapdb.version>3.1.0</mapdb.version>
     <jsoup.version>1.18.3</jsoup.version>
     <url.detector.version>0.1.20</url.detector.version>
     <guava.version>33.5.0-jre</guava.version>

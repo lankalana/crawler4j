@@ -17,23 +17,17 @@
 
 package edu.uci.ics.crawler4j.frontier;
 
-import java.util.HashMap;
+import java.io.File;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sleepycat.je.Cursor;
-import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseConfig;
-import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.OperationStatus;
-import com.sleepycat.je.Transaction;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import edu.uci.ics.crawler4j.util.Util;
 
 /**
  * @author Yasser Ganjisaffar
@@ -47,49 +41,30 @@ public class Counters {
     }
 
     private static final String DATABASE_NAME = "Statistics";
-    protected Database statisticsDB = null;
-    protected Environment env;
+    private final DB db;
     private CrawlConfig config;
+    private final boolean resumable;
 
     protected final Object mutex = new Object();
 
     protected Map<String, Long> counterValues;
 
-    public Counters(Environment env, CrawlConfig config) {
-        this.env = env;
-        this.counterValues = new HashMap<>();
+    public Counters(File storageFolder, CrawlConfig config) {
         this.config = config;
+        this.resumable = config.isResumableCrawling();
 
     /*
      * When crawling is set to be resumable, we have to keep the statistics
      * in a transactional database to make sure they are not lost if crawler
      * is crashed or terminated unexpectedly.
      */
-        if (config.isResumableCrawling()) {
-            DatabaseConfig dbConfig = new DatabaseConfig();
-            dbConfig.setAllowCreate(true);
-            dbConfig.setTransactional(true);
-            dbConfig.setDeferredWrite(false);
-            statisticsDB = env.openDatabase(null, DATABASE_NAME, dbConfig);
-
-            OperationStatus result;
-            DatabaseEntry key = new DatabaseEntry();
-            DatabaseEntry value = new DatabaseEntry();
-            Transaction tnx = env.beginTransaction(null, null);
-            Cursor cursor = statisticsDB.openCursor(tnx, null);
-            result = cursor.getFirst(key, value, null);
-
-            while (result == OperationStatus.SUCCESS) {
-                if (value.getData().length > 0) {
-                    String name = new String(key.getData());
-                    long counterValue = Util.byteArray2Long(value.getData());
-                    counterValues.put(name, counterValue);
-                }
-                result = cursor.getNext(key, value, null);
-            }
-            cursor.close();
-            tnx.commit();
+        File dbFile = new File(storageFolder, DATABASE_NAME + ".db");
+        DBMaker.Maker maker = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported();
+        if (resumable) {
+            maker = maker.transactionEnable();
         }
+        db = maker.make();
+        counterValues = db.hashMap(DATABASE_NAME, Serializer.STRING, Serializer.LONG).createOrOpen();
     }
 
     public long getValue(String name) {
@@ -106,12 +81,7 @@ public class Counters {
         synchronized (mutex) {
             try {
                 counterValues.put(name, value);
-                if (statisticsDB != null) {
-                    Transaction txn = env.beginTransaction(null, null);
-                    statisticsDB.put(txn, new DatabaseEntry(name.getBytes()),
-                                     new DatabaseEntry(Util.long2ByteArray(value)));
-                    txn.commit();
-                }
+                commitIfNeeded();
             } catch (RuntimeException e) {
                 if (config.isHaltOnError()) {
                     throw e;
@@ -135,11 +105,16 @@ public class Counters {
 
     public void close() {
         try {
-            if (statisticsDB != null) {
-                statisticsDB.close();
-            }
-        } catch (DatabaseException e) {
+            commitIfNeeded();
+            db.close();
+        } catch (RuntimeException e) {
             logger.error("Exception thrown while trying to close statisticsDB", e);
+        }
+    }
+
+    private void commitIfNeeded() {
+        if (resumable) {
+            db.commit();
         }
     }
 }

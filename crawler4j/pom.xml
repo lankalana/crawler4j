@@ -47,9 +47,9 @@
       <version>${httpclient.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.sleepycat</groupId>
-      <artifactId>je</artifactId>
-      <version>${je.version}</version>
+      <groupId>org.mapdb</groupId>
+      <artifactId>mapdb</artifactId>
+      <version>${mapdb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>

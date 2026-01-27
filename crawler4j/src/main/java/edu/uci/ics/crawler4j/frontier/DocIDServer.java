@@ -20,15 +20,14 @@ package edu.uci.ics.crawler4j.frontier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseConfig;
-import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.OperationStatus;
+import java.io.File;
+
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import edu.uci.ics.crawler4j.util.Util;
 
 /**
  * @author Yasser Ganjisaffar
@@ -37,23 +36,28 @@ import edu.uci.ics.crawler4j.util.Util;
 public class DocIDServer {
     private static final Logger logger = LoggerFactory.getLogger(DocIDServer.class);
 
-    private final Database docIDsDB;
+    private final DB db;
+    private final HTreeMap<String, Integer> docIDsDB;
     private static final String DATABASE_NAME = "DocIDs";
 
     private final Object mutex = new Object();
 
     private CrawlConfig config;
     private int lastDocID;
+    private final boolean resumable;
 
-    public DocIDServer(Environment env, CrawlConfig config) {
+    public DocIDServer(File storageFolder, CrawlConfig config) {
         this.config = config;
-        DatabaseConfig dbConfig = new DatabaseConfig();
-        dbConfig.setAllowCreate(true);
-        dbConfig.setTransactional(config.isResumableCrawling());
-        dbConfig.setDeferredWrite(!config.isResumableCrawling());
+        this.resumable = config.isResumableCrawling();
+        File dbFile = new File(storageFolder, DATABASE_NAME + ".db");
+        DBMaker.Maker maker = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported();
+        if (resumable) {
+            maker = maker.transactionEnable();
+        }
+        this.db = maker.make();
         lastDocID = 0;
-        docIDsDB = env.openDatabase(null, DATABASE_NAME, dbConfig);
-        if (config.isResumableCrawling()) {
+        docIDsDB = db.hashMap(DATABASE_NAME, Serializer.STRING, Serializer.INTEGER).createOrOpen();
+        if (resumable) {
             int docCount = getDocCount();
             if (docCount > 0) {
                 logger.info("Loaded {} URLs that had been detected in previous crawl.", docCount);
@@ -70,12 +74,11 @@ public class DocIDServer {
      */
     public int getDocId(String url) {
         synchronized (mutex) {
-            OperationStatus result = null;
-            DatabaseEntry value = new DatabaseEntry();
             try {
-                DatabaseEntry key = new DatabaseEntry(url.getBytes());
-                result = docIDsDB.get(null, key, value, null);
-
+                Integer value = docIDsDB.get(url);
+                if (value != null) {
+                    return value;
+                }
             } catch (RuntimeException e) {
                 if (config.isHaltOnError()) {
                     throw e;
@@ -83,10 +86,6 @@ public class DocIDServer {
                     logger.error("Exception thrown while getting DocID", e);
                     return -1;
                 }
-            }
-
-            if ((result == OperationStatus.SUCCESS) && (value.getData().length > 0)) {
-                return Util.byteArray2Int(value.getData());
             }
 
             return -1;
@@ -103,8 +102,8 @@ public class DocIDServer {
                 }
 
                 ++lastDocID;
-                docIDsDB.put(null, new DatabaseEntry(url.getBytes()),
-                             new DatabaseEntry(Util.int2ByteArray(lastDocID)));
+                docIDsDB.put(url, lastDocID);
+                commitIfNeeded();
                 return lastDocID;
             } catch (RuntimeException e) {
                 if (config.isHaltOnError()) {
@@ -133,9 +132,9 @@ public class DocIDServer {
                 throw new IllegalArgumentException("Doc id: " + prevDocid + " is already assigned to URL: " + url);
             }
 
-            docIDsDB.put(null, new DatabaseEntry(url.getBytes()),
-                         new DatabaseEntry(Util.int2ByteArray(docId)));
+            docIDsDB.put(url, docId);
             lastDocID = docId;
+            commitIfNeeded();
         }
     }
 
@@ -145,8 +144,8 @@ public class DocIDServer {
 
     public final int getDocCount() {
         try {
-            return (int) docIDsDB.count();
-        } catch (DatabaseException e) {
+            return docIDsDB.size();
+        } catch (RuntimeException e) {
             logger.error("Exception thrown while getting DOC Count", e);
             return -1;
         }
@@ -154,9 +153,16 @@ public class DocIDServer {
 
     public void close() {
         try {
-            docIDsDB.close();
-        } catch (DatabaseException e) {
+            commitIfNeeded();
+            db.close();
+        } catch (RuntimeException e) {
             logger.error("Exception thrown while closing DocIDServer", e);
+        }
+    }
+
+    private void commitIfNeeded() {
+        if (resumable) {
+            db.commit();
         }
     }
 }

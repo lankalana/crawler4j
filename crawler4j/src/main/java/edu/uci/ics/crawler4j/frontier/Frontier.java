@@ -22,8 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Environment;
+import java.io.File;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.url.WebURL;
@@ -51,14 +50,14 @@ public class Frontier {
 
     protected Counters counters;
 
-    public Frontier(Environment env, CrawlConfig config) {
+    public Frontier(File storageFolder, CrawlConfig config) {
         this.config = config;
-        this.counters = new Counters(env, config);
+        this.counters = new Counters(storageFolder, config);
         try {
-            workQueues = new WorkQueues(env, DATABASE_NAME, config.isResumableCrawling());
+            workQueues = new WorkQueues(storageFolder, DATABASE_NAME, config.isResumableCrawling());
             if (config.isResumableCrawling()) {
                 scheduledPages = counters.getValue(Counters.ReservedCounterNames.SCHEDULED_PAGES);
-                inProcessPages = new InProcessPagesDB(env);
+                inProcessPages = new InProcessPagesDB(storageFolder);
                 long numPreviouslyInProcessPages = inProcessPages.getLength();
                 if (numPreviouslyInProcessPages > 0) {
                     logger.info("Rescheduling {} URLs from previous crawl.",
@@ -76,7 +75,7 @@ public class Frontier {
                 inProcessPages = null;
                 scheduledPages = 0;
             }
-        } catch (DatabaseException e) {
+        } catch (RuntimeException e) {
             logger.error("Error while initializing the Frontier", e);
             workQueues = null;
         }
@@ -95,7 +94,7 @@ public class Frontier {
                 try {
                     workQueues.put(url);
                     newScheduledPage++;
-                } catch (DatabaseException e) {
+                } catch (RuntimeException e) {
                     logger.error("Error while putting the url in the work queue", e);
                 }
             }
@@ -118,7 +117,7 @@ public class Frontier {
                     scheduledPages++;
                     counters.increment(Counters.ReservedCounterNames.SCHEDULED_PAGES);
                 }
-            } catch (DatabaseException e) {
+            } catch (RuntimeException e) {
                 logger.error("Error while putting the url in the work queue", e);
             }
         }
@@ -139,7 +138,7 @@ public class Frontier {
                         }
                     }
                     result.addAll(curResults);
-                } catch (DatabaseException e) {
+                } catch (RuntimeException e) {
                     logger.error("Error while getting next urls", e);
                 }
 
