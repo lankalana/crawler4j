@@ -48,7 +48,7 @@ public class SniPoolingHttpClientConnectionManager extends PoolingHttpClientConn
 		} catch (SSLProtocolException e) {
 			Boolean enableSniValue = (Boolean) context.getAttribute(SniSSLConnectionSocketFactory.ENABLE_SNI);
 			boolean enableSni = enableSniValue == null || enableSniValue;
-			if (enableSni && e.getMessage() != null && e.getMessage().equals("handshake alert:  unrecognized_name")) {
+			if (enableSni && e.getMessage() != null && "handshake alert:  unrecognized_name".equals(e.getMessage())) {
 				logger.warn("Server saw wrong SNI host, retrying without SNI");
 				context.setAttribute(SniSSLConnectionSocketFactory.ENABLE_SNI, false);
 				super.connect(conn, route, connectTimeout, context);

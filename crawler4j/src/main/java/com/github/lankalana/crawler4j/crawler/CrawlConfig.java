@@ -71,16 +71,16 @@ public class CrawlConfig {
 	private int maxTotalConnections = 100;
 
 	/** Socket timeout in milliseconds */
-	private int socketTimeout = 20000;
+	private int socketTimeout = 20_000;
 
 	/** Connection timeout in milliseconds */
-	private int connectionTimeout = 30000;
+	private int connectionTimeout = 30_000;
 
 	/** Max number of outgoing links which are processed from a page */
 	private int maxOutgoingLinksToFollow = 5000;
 
 	/** Max allowed size of a page. Pages larger than this size will not be fetched. */
-	private int maxDownloadSize = 1048576;
+	private int maxDownloadSize = 1_048_576;
 
 	/** Should we follow redirects? */
 	private boolean followRedirects = true;

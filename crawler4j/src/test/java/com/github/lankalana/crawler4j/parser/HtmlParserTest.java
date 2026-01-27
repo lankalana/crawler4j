@@ -1,7 +1,6 @@
 package com.github.lankalana.crawler4j.parser;
 
 import java.io.File;
-import java.nio.charset.Charset;
 
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
@@ -19,10 +18,10 @@ public class HtmlParserTest {
 		WebURL url = new WebURL();
 		url.setURL("http://wiki.c2.com/");
 		File file = new File("src/test/resources/html/wiki.c2.com.html");
-		ContentType contentType = ContentType.create("text/html", Charset.forName("UTF-8"));
+		ContentType contentType = ContentType.create("text/html", java.nio.charset.StandardCharsets.UTF_8);
 		FileEntity entity = new FileEntity(file, contentType);
 		Page page = new Page(url);
-		page.load(entity, 1000000);
+		page.load(entity, 1_000_000);
 
 		parser.parse(page, url.getURL());
 	}

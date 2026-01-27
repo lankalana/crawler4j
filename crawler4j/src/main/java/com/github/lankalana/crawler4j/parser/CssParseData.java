@@ -137,7 +137,7 @@ public class CssParseData extends TextParseData {
 
 	private static String getDirsFromUrl(String urlPath) {
 
-		int pos = urlPath.lastIndexOf("/") + 1;
+		int pos = urlPath.lastIndexOf('/') + 1;
 		String root = urlPath.substring(0, pos);
 		return root;
 	}
@@ -145,7 +145,7 @@ public class CssParseData extends TextParseData {
 	private static String getPathFromUrl(String url) {
 
 		int pos1 = url.indexOf("//") + 2; // http://subdomain.domain:port/dir/page.ext
-		int pos2 = url.indexOf("/", pos1);
+		int pos2 = url.indexOf('/', pos1);
 		String path = url.substring(pos2);
 		return path;
 	}
@@ -153,7 +153,7 @@ public class CssParseData extends TextParseData {
 	private static String getFullDomainFromUrl(String url) {
 
 		int pos1 = url.indexOf("//") + 2; // http://subdomain.domain:port/dir/page.ext
-		int pos2 = url.indexOf("/", pos1);
+		int pos2 = url.indexOf('/', pos1);
 		String path = url.substring(0, pos2);
 		return path;
 	}

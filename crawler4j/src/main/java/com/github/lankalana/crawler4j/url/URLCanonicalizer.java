@@ -62,7 +62,7 @@ public class URLCanonicalizer {
 			 * not equal to "..".
 			 */
 			path = new URI(path.replace("\\", "/")
-							.replace(String.valueOf((char) 12288), "%E3%80%80")
+							.replace(String.valueOf((char) 12_288), "%E3%80%80")
 							.replace(String.valueOf((char) 32), "%20"))
 					.normalize()
 					.toString();

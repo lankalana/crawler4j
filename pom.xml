@@ -19,7 +19,12 @@
 		<module>crawler4j</module>
 		<module>crawler4j-examples</module>
 	</modules>
-	<properties/>
+	<properties>
+		<java.version>21</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.release>${java.version}</maven.compiler.release>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -54,6 +59,61 @@
 						</indent>
 					</pom>
 					<java>
+						<cleanthat>
+							<version>2.24</version>
+							<mutators>
+								<mutator>LiteralsFirstInComparisons</mutator>
+								<mutator>UseUnderscoresInNumericLiterals</mutator>
+								<mutator>RemoveModifiersInInterfaceProperties</mutator>
+								<mutator>ArithmethicAssignment</mutator>
+								<mutator>ArithmeticOverFloats</mutator>
+								<mutator>AvoidFileStream</mutator>
+								<mutator>AvoidMultipleUnaryOperators</mutator>
+								<mutator>AvoidUncheckedExceptionsInSignatures</mutator>
+								<mutator>BoxedPrimitiveConstructor</mutator>
+								<mutator>CastMathOperandsBeforeAssignement</mutator>
+								<mutator>CollectionIndexOfToContains</mutator>
+								<mutator>CreateTempFilesUsingNio</mutator>
+								<mutator>EmptyControlStatement</mutator>
+								<mutator>EmptyStatementBlock</mutator>
+								<mutator>EmptyStatementCheck</mutator>
+								<mutator>EnumsWithoutEquals</mutator>
+								<mutator>ExplicitToImplicit</mutator>
+								<mutator>ImportQualifiedTokens</mutator>
+								<mutator>IndexOfToContains</mutator>
+								<mutator>ModifierOrder</mutator>
+								<mutator>ObjectEqualsForPrimitives</mutator>
+								<mutator>PrimitiveWrapperInstantiation</mutator>
+								<mutator>RedundantModifier</mutator>
+								<mutator>RemoveAllToClearCollection</mutator>
+								<mutator>RemoveDoubleNegation</mutator>
+								<mutator>RemoveEmptyStatement</mutator>
+								<mutator>RemoveExplicitCallToSuper</mutator>
+								<mutator>RemoveNewStringConstructor</mutator>
+								<mutator>RemoveToStringOnString</mutator>
+								<mutator>ReorderModifiers</mutator>
+								<mutator>SimplifyBooleanExpression</mutator>
+								<mutator>SimplifyStartsWith</mutator>
+								<mutator>StringFromString</mutator>
+								<mutator>StringIndexOfToContains</mutator>
+								<mutator>StringReplaceAllWithQuotableInput</mutator>
+								<mutator>StringStartsWithChar</mutator>
+								<mutator>StringToString</mutator>
+								<mutator>ThreadRunToThreadStart</mutator>
+								<mutator>UnnecessaryBoxing</mutator>
+								<mutator>UnnecessaryFullyQualifiedName</mutator>
+								<mutator>UnnecessaryImport</mutator>
+								<mutator>UnnecessaryModifier</mutator>
+								<mutator>UnnecessarySemicolon</mutator>
+								<mutator>UnnecessaryWrapperObjectCreation</mutator>
+								<mutator>UnusedImports</mutator>
+								<mutator>UseCollectionIsEmpty</mutator>
+								<mutator>UseIndexOfChar</mutator>
+								<mutator>UseIsEmptyOnCollections</mutator>
+								<mutator>UsePredefinedStandardCharset</mutator>
+								<mutator>UseStringIsEmpty</mutator>
+							</mutators>
+						</cleanthat>
 						<palantirJavaFormat>
 							<formatJavadoc>true</formatJavadoc>
 						</palantirJavaFormat>

@@ -146,7 +146,7 @@ public class Page {
 			charset = ContentType.getOrDefault(entity).getCharset();
 		} catch (Exception e) {
 			logger.warn("parse charset failed: {}", e.getMessage());
-			charset = Charset.forName("UTF-8");
+			charset = java.nio.charset.StandardCharsets.UTF_8;
 		}
 
 		if (charset != null) {

@@ -51,7 +51,7 @@ public class PageFetcherHtmlOnly extends PageFetcher {
 					: null;
 			String typeStr = (contentType != null) ? contentType.toLowerCase() : "";
 
-			if (typeStr.equals("") || (typeStr.contains("text") && typeStr.contains("html"))) {
+			if ("".equals(typeStr) || (typeStr.contains("text") && typeStr.contains("html"))) {
 				return super.fetchPage(webUrl);
 			} else {
 				return fetchResult;

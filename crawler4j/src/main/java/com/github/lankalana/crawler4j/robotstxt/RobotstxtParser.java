@@ -58,7 +58,7 @@ public class RobotstxtParser {
 				String value = m.group(2).trim();
 
 				if (VALID_RULES.contains(rule)) {
-					if (rule.equals("user-agent")) {
+					if ("user-agent".equals(rule)) {
 						String currentUserAgent = value.toLowerCase();
 						if (uaDirectives != null) {
 							// If uaDirectives is not null, this means that one or

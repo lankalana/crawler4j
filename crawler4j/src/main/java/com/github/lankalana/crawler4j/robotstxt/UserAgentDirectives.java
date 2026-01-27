@@ -87,7 +87,7 @@ public class UserAgentDirectives {
 		userAgent = userAgent.toLowerCase();
 		int maxLength = 0;
 		for (String ua : userAgents) {
-			if (ua.equals("*") || userAgent.contains(ua)) {
+			if ("*".equals(ua) || userAgent.contains(ua)) {
 				maxLength = Math.max(maxLength, ua.length());
 			}
 		}
@@ -175,22 +175,22 @@ public class UserAgentDirectives {
 	 * @param value The value of the rule
 	 */
 	public void add(String rule, String value) {
-		if (rule.equals("sitemap")) {
+		if ("sitemap".equals(rule)) {
 			if (this.sitemap == null) {
 				this.sitemap = new ArrayList<String>();
 			}
 			this.sitemap.add(value);
-		} else if (rule.equals("crawl-delay")) {
+		} else if ("crawl-delay".equals(rule)) {
 			try {
 				this.crawlDelay = Double.parseDouble(value);
 			} catch (NumberFormatException e) {
 				logger.warn("Invalid number format for crawl-delay robots.txt: {}", value);
 			}
-		} else if (rule.equals("host")) {
+		} else if ("host".equals(rule)) {
 			this.preferredHost = value;
-		} else if (rule.equals("allow")) {
+		} else if ("allow".equals(rule)) {
 			this.pathRules.add(new PathRule(HostDirectives.ALLOWED, value));
-		} else if (rule.equals("disallow")) {
+		} else if ("disallow".equals(rule)) {
 			this.pathRules.add(new PathRule(HostDirectives.DISALLOWED, value));
 		} else {
 			logger.error("Invalid key in robots.txt passed to UserAgentRules: {}", rule);
