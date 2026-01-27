@@ -39,38 +39,33 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>${httpclient.version}</version>
+      <version>4.5.14</version>
     </dependency>
     <dependency>
       <groupId>org.mapdb</groupId>
       <artifactId>mapdb</artifactId>
-      <version>${mapdb.version}</version>
+      <version>3.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>${jsoup.version}</version>
+      <version>1.18.3</version>
     </dependency>
     <dependency>
       <groupId>io.github.pgalbraith</groupId>
       <artifactId>url-detector</artifactId>
-      <version>${url.detector.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
+      <version>0.1.20</version>
     </dependency>
     <dependency>
       <groupId>de.malkusch.whois-server-list</groupId>
       <artifactId>public-suffix-list</artifactId>
-      <version>${public.suffix.version}</version>
+      <version>2.2.4</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -78,6 +78,7 @@ public class BasicCrawlController {
         // Start the crawl. This is a blocking operation, meaning that your code
         // will reach the line after this only when crawling is finished.
         controller.start(factory, numberOfCrawlers);
+        System.out.println("Number of images seen during the crawl: " + numSeenImages.get());
     }
 
 }

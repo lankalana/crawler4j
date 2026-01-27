@@ -19,31 +19,9 @@
 
   <modules>
     <module>crawler4j</module>
-    <!-- <module>crawler4j-examples/crawler4j-examples-base</module>
-    <module>crawler4j-examples/crawler4j-examples-postgres</module> -->
+    <module>crawler4j-examples</module>
   </modules>
 
   <properties>
-    <httpclient.version>4.5.14</httpclient.version>
-    <mapdb.version>3.1.0</mapdb.version>
-    <jsoup.version>1.18.3</jsoup.version>
-    <url.detector.version>0.1.20</url.detector.version>
-    <guava.version>33.5.0-jre</guava.version>
-    <public.suffix.version>2.2.4</public.suffix.version>
-    <junit.version>4.13.2</junit.version>
-
-    <postgres.version>42.2.1</postgres.version>
-    <c3p0.version>0.9.5.3</c3p0.version>
-    <flyway.version>5.0.7</flyway.version>
-    <guava.examples.version>24.0-jre</guava.examples.version>
-    <junit.examples.version>4.12</junit.examples.version>
-    <docker.compose.rule.version>0.33.0</docker.compose.rule.version>
-
-    <gmavenplus.version>1.13.1</gmavenplus.version>
-    <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
-    <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
-    <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
-    <maven.source.plugin.version> 3.4.0</maven.source.plugin.version>
-    <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
   </properties>
 </project>
