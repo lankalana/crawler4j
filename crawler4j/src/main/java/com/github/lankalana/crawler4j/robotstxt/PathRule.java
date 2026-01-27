@@ -40,7 +40,7 @@ public class PathRule {
 			if (ch == '\\') {
 				// Handle escaped * and $ characters
 				char nch = pos < pattern.length() - 1 ? pattern.charAt(pos + 1) : 0;
-				if (nch == '*' || ch == '$') {
+				if (nch == '*' || nch == '$') {
 					quoteBuf.append(nch);
 					++pos; // We need to skip one character
 				} else {
