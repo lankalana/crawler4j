@@ -1,53 +1,46 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE
+ * file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file
+ * to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-
 package com.github.lankalana.crawler4j.frontier;
+
+import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 import com.github.lankalana.crawler4j.url.WebURL;
 
 /**
- * This class maintains the list of pages which are
- * assigned to crawlers but are not yet processed.
- * It is used for resuming a previous crawl.
+ * This class maintains the list of pages which are assigned to crawlers but are not yet processed. It is used for
+ * resuming a previous crawl.
  *
  * @author Yasser Ganjisaffar
  */
 public class InProcessPagesDB extends WorkQueues {
-    private static final Logger logger = LoggerFactory.getLogger(InProcessPagesDB.class);
+	private static final Logger logger = LoggerFactory.getLogger(InProcessPagesDB.class);
 
-    private static final String DATABASE_NAME = "InProcessPagesDB";
+	private static final String DATABASE_NAME = "InProcessPagesDB";
 
-    public InProcessPagesDB(File storageFolder) {
-        super(storageFolder, DATABASE_NAME, true);
-        long docCount = getLength();
-        if (docCount > 0) {
-            logger.info("Loaded {} URLs that have been in process in the previous crawl.",
-                        docCount);
-        }
-    }
+	public InProcessPagesDB(File storageFolder) {
+		super(storageFolder, DATABASE_NAME, true);
+		long docCount = getLength();
+		if (docCount > 0) {
+			logger.info("Loaded {} URLs that have been in process in the previous crawl.", docCount);
+		}
+	}
 
-    public boolean removeURL(WebURL webUrl) {
-        synchronized (mutex) {
-            return removeByKey(getDatabaseEntryKey(webUrl));
-        }
-    }
+	public boolean removeURL(WebURL webUrl) {
+		synchronized (mutex) {
+			return removeByKey(getDatabaseEntryKey(webUrl));
+		}
+	}
 }

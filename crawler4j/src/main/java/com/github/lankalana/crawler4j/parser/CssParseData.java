@@ -28,133 +28,133 @@ import com.github.lankalana.crawler4j.url.WebURL;
 
 public class CssParseData extends TextParseData {
 
-    private Set<WebURL> parseOutgoingUrls(WebURL referringPage) throws UnsupportedEncodingException {
+	private Set<WebURL> parseOutgoingUrls(WebURL referringPage) throws UnsupportedEncodingException {
 
-        Set<String> extractedUrls = extractUrlInCssText(this.getTextContent());
+		Set<String> extractedUrls = extractUrlInCssText(this.getTextContent());
 
-        final String pagePath = referringPage.getPath();
-        final String pageUrl = referringPage.getURL();
+		final String pagePath = referringPage.getPath();
+		final String pageUrl = referringPage.getURL();
 
-        Set<WebURL> outgoingUrls = new HashSet<>();
-        for (String url : extractedUrls) {
+		Set<WebURL> outgoingUrls = new HashSet<>();
+		for (String url : extractedUrls) {
 
-            String relative = getLinkRelativeTo(pagePath, url);
-            String absolute = getAbsoluteUrlFrom(URLCanonicalizer.getCanonicalURL(pageUrl), relative);
+			String relative = getLinkRelativeTo(pagePath, url);
+			String absolute = getAbsoluteUrlFrom(URLCanonicalizer.getCanonicalURL(pageUrl), relative);
 
-            WebURL webURL = new WebURL();
-            webURL.setURL(absolute);
-            outgoingUrls.add(webURL);
+			WebURL webURL = new WebURL();
+			webURL.setURL(absolute);
+			outgoingUrls.add(webURL);
+		}
+		return outgoingUrls;
+	}
 
-        }
-        return outgoingUrls;
-    }
+	public void setOutgoingUrls(WebURL referringPage) throws UnsupportedEncodingException {
 
-    public void setOutgoingUrls(WebURL referringPage) throws UnsupportedEncodingException {
+		Set<WebURL> outgoingUrls = parseOutgoingUrls(referringPage);
+		this.setOutgoingUrls(outgoingUrls);
+	}
 
-        Set<WebURL> outgoingUrls = parseOutgoingUrls(referringPage);
-        this.setOutgoingUrls(outgoingUrls);
-    }
+	private static Set<String> extractUrlInCssText(String input) {
 
-    private static Set<String> extractUrlInCssText(String input) {
+		Set<String> extractedUrls = new HashSet<>();
+		if (input == null || input.isEmpty()) {
+			return extractedUrls;
+		}
 
-        Set<String> extractedUrls = new HashSet<>();
-        if (input == null || input.isEmpty()) {
-            return extractedUrls;
-        }
+		Matcher matcher = pattern.matcher(input);
+		while (matcher.find()) {
+			String url = matcher.group(1);
+			if (url == null) {
+				url = matcher.group(2);
+			}
+			if (url == null) {
+				url = matcher.group(3);
+			}
+			if (url == null || url.startsWith("data:")) {
+				continue;
+			}
+			extractedUrls.add(url);
+		}
+		return extractedUrls;
+	}
 
-        Matcher matcher = pattern.matcher(input);
-        while (matcher.find()) {
-            String url = matcher.group(1);
-            if (url == null) {
-                url = matcher.group(2);
-            }
-            if (url == null) {
-                url = matcher.group(3);
-            }
-            if (url == null || url.startsWith("data:")) {
-                continue;
-            }
-            extractedUrls.add(url);
-        }
-        return extractedUrls;
-    }
+	private static final Pattern pattern = initializePattern();
 
-    private static final Pattern pattern = initializePattern();
+	private static Pattern initializePattern() {
+		return Pattern.compile("url\\(\\s*'([^\\)]+)'\\s*\\)" + // url('...')
+				"|url\\(\\s*\"([^\\)]+)\"\\s*\\)"
+				+ // url("...")
+				"|url\\(\\s*([^\\)]+)\\s*\\)"
+				+ // url(...)
+				"|\\/\\*(\\*(?!\\/)|[^*])*\\*\\/"); // ignore comments
+	}
 
-    private static Pattern initializePattern() {
-        return Pattern.compile("url\\(\\s*'([^\\)]+)'\\s*\\)" +     // url('...')
-                "|url\\(\\s*\"([^\\)]+)\"\\s*\\)" +                  // url("...")
-                "|url\\(\\s*([^\\)]+)\\s*\\)" +                       // url(...)
-                "|\\/\\*(\\*(?!\\/)|[^*])*\\*\\/");                 // ignore comments
-    }
+	private static String getAbsoluteUrlFrom(String pageUrl, String linkPath) {
 
-    private static String getAbsoluteUrlFrom(String pageUrl, String linkPath) {
+		String domainUrl = getFullDomainFromUrl(pageUrl);
+		if (linkPath.startsWith("/")) {
+			return domainUrl + linkPath;
+		}
+		return domainUrl + "/" + linkPath;
+	}
 
-        String domainUrl = getFullDomainFromUrl(pageUrl);
-        if (linkPath.startsWith("/")) {
-            return domainUrl + linkPath;
-        }
-        return domainUrl + "/" + linkPath;
-    }
+	private static String getLinkRelativeTo(String pagePath, String linkUrl) {
 
-    private static String getLinkRelativeTo(String pagePath, String linkUrl) {
+		if (linkUrl.startsWith("/") && !linkUrl.startsWith("//")) {
+			return linkUrl;
+		}
 
-        if (linkUrl.startsWith("/") && !linkUrl.startsWith("//")) {
-            return linkUrl;
-        }
+		if (linkUrl.startsWith("//")) {
+			linkUrl = "http" + linkUrl;
+		}
 
-        if (linkUrl.startsWith("//")) {
-            linkUrl = "http" + linkUrl;
-        }
+		if (linkUrl.startsWith("http")) {
+			String domainUrl = getPathFromUrl(linkUrl);
+			return domainUrl;
+		}
 
-        if (linkUrl.startsWith("http")) {
-            String domainUrl = getPathFromUrl(linkUrl);
-            return domainUrl;
-        }
+		if (linkUrl.startsWith("../")) {
 
-        if (linkUrl.startsWith("../")) {
+			String[] parts = pagePath.split("/");
 
-            String[] parts = pagePath.split("/");
+			int pos = linkUrl.lastIndexOf("../") + 3;
+			int parents = pos / 3;
+			long diff = parts.length - parents - 1;
 
-            int pos = linkUrl.lastIndexOf("../") + 3;
-            int parents = pos / 3;
-            long diff = parts.length - parents - 1;
+			String absolute = "";
+			for (int i = 0; i < diff; i++) {
+				String dir = parts[i];
+				if (!dir.isEmpty()) {
+					absolute = absolute + "/" + dir;
+				}
+			}
+			return absolute + "/" + linkUrl.substring(pos);
+		}
 
-            String absolute = "";
-            for (int i = 0; i < diff; i++) {
-                String dir = parts[i];
-                if (!dir.isEmpty()) {
-                    absolute = absolute + "/" + dir;
-                }
-            }
-            return absolute + "/" + linkUrl.substring(pos);
-        }
+		String root = getDirsFromUrl(pagePath);
+		return root + linkUrl;
+	}
 
-        String root = getDirsFromUrl(pagePath);
-        return root + linkUrl;
-    }
+	private static String getDirsFromUrl(String urlPath) {
 
-    private static String getDirsFromUrl(String urlPath) {
+		int pos = urlPath.lastIndexOf("/") + 1;
+		String root = urlPath.substring(0, pos);
+		return root;
+	}
 
-        int pos = urlPath.lastIndexOf("/") + 1;
-        String root = urlPath.substring(0, pos);
-        return root;
-    }
+	private static String getPathFromUrl(String url) {
 
-    private static String getPathFromUrl(String url) {
+		int pos1 = url.indexOf("//") + 2; // http://subdomain.domain:port/dir/page.ext
+		int pos2 = url.indexOf("/", pos1);
+		String path = url.substring(pos2);
+		return path;
+	}
 
-        int pos1 = url.indexOf("//") + 2;              // http://subdomain.domain:port/dir/page.ext
-        int pos2 = url.indexOf("/", pos1);
-        String path = url.substring(pos2);
-        return path;
-    }
+	private static String getFullDomainFromUrl(String url) {
 
-    private static String getFullDomainFromUrl(String url) {
-
-        int pos1 = url.indexOf("//") + 2;              // http://subdomain.domain:port/dir/page.ext
-        int pos2 = url.indexOf("/", pos1);
-        String path = url.substring(0, pos2);
-        return path;
-    }
-
+		int pos1 = url.indexOf("//") + 2; // http://subdomain.domain:port/dir/page.ext
+		int pos2 = url.indexOf("/", pos1);
+		String path = url.substring(0, pos2);
+		return path;
+	}
 }

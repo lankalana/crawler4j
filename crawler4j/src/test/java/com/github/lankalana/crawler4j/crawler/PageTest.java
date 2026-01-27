@@ -11,18 +11,18 @@ import com.github.lankalana.crawler4j.url.WebURL;
 
 public class PageTest {
 
-    @Test
-    public void testDefaultCharsetFallback() throws Exception {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        String content = "The content";
-        entity.setContent(IOUtils.toInputStream(content, "UTF-8"));
-        entity.setContentLength(content.length());
-        entity.setContentType(new BasicHeader("Content-type", "text/html; charset=UNPARSABLE"));
+	@Test
+	public void testDefaultCharsetFallback() throws Exception {
+		BasicHttpEntity entity = new BasicHttpEntity();
+		String content = "The content";
+		entity.setContent(IOUtils.toInputStream(content, "UTF-8"));
+		entity.setContentLength(content.length());
+		entity.setContentType(new BasicHeader("Content-type", "text/html; charset=UNPARSABLE"));
 
-        WebURL url = new WebURL();
-        Page page = new Page(url);
-        page.load(entity, 1024);
+		WebURL url = new WebURL();
+		Page page = new Page(url);
+		page.load(entity, 1024);
 
-        assertEquals("UTF-8", page.getContentCharset());
-    }
+		assertEquals("UTF-8", page.getContentCharset());
+	}
 }

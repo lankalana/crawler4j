@@ -20,82 +20,80 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 public class OnRedirectedToInvalidTest {
 
-    @Rule
-    public TemporaryFolder temp = new TemporaryFolder();
+	@Rule
+	public TemporaryFolder temp = new TemporaryFolder();
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(new WireMockConfiguration().dynamicPort());
+	@Rule
+	public WireMockRule wireMockRule = new WireMockRule(new WireMockConfiguration().dynamicPort());
 
-    @Test
-    public void testInterceptRedirectToInvalidUrl() throws Exception {
-        int[] redirectHttpCodes = new int[] {300, 301, 302, 303, 307, 308};
-        for (int redirectHttpCode : redirectHttpCodes) {
-            runRedirectTest(redirectHttpCode);
-        }
-    }
+	@Test
+	public void testInterceptRedirectToInvalidUrl() throws Exception {
+		int[] redirectHttpCodes = new int[] {300, 301, 302, 303, 307, 308};
+		for (int redirectHttpCode : redirectHttpCodes) {
+			runRedirectTest(redirectHttpCode);
+		}
+	}
 
-    private void runRedirectTest(int redirectHttpCode) throws Exception {
-        WireMock.reset();
+	private void runRedirectTest(int redirectHttpCode) throws Exception {
+		WireMock.reset();
 
-        String redirectToNothing = "asd://-invalid-/varybadlocation";
+		String redirectToNothing = "asd://-invalid-/varybadlocation";
 
-        stubFor(get(urlEqualTo("/some/index.html"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/html")
-                        .withBody("<html>\n" +
-                                "        <head>\n" +
-                                "            <meta charset=\"UTF-8\">\n" +
-                                "        </head>\n" +
-                                "        <body> \n" +
-                                "            <a href=\"/some/redirect.html\">link to a redirected page to nothing</a>\n" +
-                                "        </body>\n" +
-                                "       </html>")));
+		stubFor(get(urlEqualTo("/some/index.html"))
+				.willReturn(aResponse()
+						.withStatus(200)
+						.withHeader("Content-Type", "text/html")
+						.withBody("<html>\n" + "        <head>\n"
+								+ "            <meta charset=\"UTF-8\">\n"
+								+ "        </head>\n"
+								+ "        <body> \n"
+								+ "            <a href=\"/some/redirect.html\">link to a redirected page to nothing</a>\n"
+								+ "        </body>\n"
+								+ "       </html>")));
 
-        stubFor(get(urlPathMatching("/some/redirect.html"))
-                .willReturn(aResponse()
-                        .withStatus(redirectHttpCode)
-                        .withHeader("Content-Type", "text/html")
-                        .withHeader("Location", redirectToNothing)
-                        .withBody("<html>\n" +
-                                "    <head>\n" +
-                                "        <title>Moved</title>\n" +
-                                "    </head>\n" +
-                                "    <body>\n" +
-                                "        <h1>Moved</h1>\n" +
-                                "        <p>This page has moved to <a href=\"" + redirectToNothing + "\">Some invalid location</a>.</p>\n" +
-                                "    </body>\n" +
-                                "    </html>")));
+		stubFor(get(urlPathMatching("/some/redirect.html"))
+				.willReturn(aResponse()
+						.withStatus(redirectHttpCode)
+						.withHeader("Content-Type", "text/html")
+						.withHeader("Location", redirectToNothing)
+						.withBody("<html>\n" + "    <head>\n"
+								+ "        <title>Moved</title>\n"
+								+ "    </head>\n"
+								+ "    <body>\n"
+								+ "        <h1>Moved</h1>\n"
+								+ "        <p>This page has moved to <a href=\""
+								+ redirectToNothing + "\">Some invalid location</a>.</p>\n" + "    </body>\n"
+								+ "    </html>")));
 
-        CrawlConfig config = new CrawlConfig();
-        config.setCrawlStorageFolder(temp.getRoot().getAbsolutePath());
-        config.setPolitenessDelay(0);
-        config.setMaxConnectionsPerHost(1);
-        config.setThreadShutdownDelaySeconds(1);
-        config.setThreadMonitoringDelaySeconds(1);
-        config.setCleanupDelaySeconds(1);
+		CrawlConfig config = new CrawlConfig();
+		config.setCrawlStorageFolder(temp.getRoot().getAbsolutePath());
+		config.setPolitenessDelay(0);
+		config.setMaxConnectionsPerHost(1);
+		config.setThreadShutdownDelaySeconds(1);
+		config.setThreadMonitoringDelaySeconds(1);
+		config.setCleanupDelaySeconds(1);
 
-        PageFetcher pageFetcher = new PageFetcher(config);
-        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
-        robotstxtConfig.setEnabled(false);
-        RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
-        CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
-        controller.addSeed("http://localhost:" + wireMockRule.port() + "/some/index.html");
+		PageFetcher pageFetcher = new PageFetcher(config);
+		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+		robotstxtConfig.setEnabled(false);
+		RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
+		CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
+		controller.addSeed("http://localhost:" + wireMockRule.port() + "/some/index.html");
 
-        HandleInvalidRedirectWebCrawler crawler = new HandleInvalidRedirectWebCrawler();
-        controller.start(crawler);
+		HandleInvalidRedirectWebCrawler crawler = new HandleInvalidRedirectWebCrawler();
+		controller.start(crawler);
 
-        Assert.assertEquals("/some/redirect.html", crawler.invalidLocation);
-    }
+		Assert.assertEquals("/some/redirect.html", crawler.invalidLocation);
+	}
 
-    public static class HandleInvalidRedirectWebCrawler extends WebCrawler {
+	public static class HandleInvalidRedirectWebCrawler extends WebCrawler {
 
-        private String invalidLocation;
+		private String invalidLocation;
 
-        @Override
-        protected void onRedirectedToInvalidUrl(Page page) {
-            super.onRedirectedToInvalidUrl(page);
-            invalidLocation = page.getWebURL().getPath();
-        }
-    }
+		@Override
+		protected void onRedirectedToInvalidUrl(Page page) {
+			super.onRedirectedToInvalidUrl(page);
+			invalidLocation = page.getWebURL().getPath();
+		}
+	}
 }

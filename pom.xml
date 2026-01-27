@@ -1,27 +1,81 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <groupId>com.github.lankalana</groupId>
-  <artifactId>crawler4j-parent</artifactId>
-  <version>4.5.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-
-  <name>crawler4j-parent</name>
-
-  <parent>
-    <groupId>fi.evolver</groupId>
-    <artifactId>evolver-base</artifactId>
-    <version>4.0.0</version>
-    <relativePath />
-  </parent>
-
-  <modules>
-    <module>crawler4j</module>
-    <module>crawler4j-examples</module>
-  </modules>
-
-  <properties>
-  </properties>
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+		xmlns="http://maven.apache.org/POM/4.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fi.evolver</groupId>
+		<artifactId>evolver-base</artifactId>
+		<version>4.0.0</version>
+		<relativePath/>
+	</parent>
+	<groupId>com.github.lankalana</groupId>
+	<artifactId>crawler4j-parent</artifactId>
+	<version>4.5.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>crawler4j-parent</name>
+	<modules>
+		<module>crawler4j</module>
+		<module>crawler4j-examples</module>
+	</modules>
+	<properties/>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<formats>
+						<format>
+							<includes>
+								<include>.gitattributes</include>
+								<include>.gitignore</include>
+								<include>.editorconfig</include>
+							</includes>
+							<trimTrailingWhitespace/>
+							<endWithNewline/>
+							<indent>
+								<tabs>true</tabs>
+								<spacesPerTab>4</spacesPerTab>
+							</indent>
+						</format>
+					</formats>
+					<pom>
+						<sortPom>
+							<indentAttribute>all</indentAttribute>
+							<nrOfIndentSpace>4</nrOfIndentSpace>
+							<keepBlankLines>false</keepBlankLines>
+						</sortPom>
+						<indent>
+							<tabs>true</tabs>
+							<spacesPerTab>4</spacesPerTab>
+						</indent>
+					</pom>
+					<java>
+						<palantirJavaFormat>
+							<formatJavadoc>true</formatJavadoc>
+						</palantirJavaFormat>
+						<importOrder>
+							<order>\#,java,javax,org,com</order>
+						</importOrder>
+						<removeUnusedImports/>
+						<indent>
+							<tabs>true</tabs>
+							<spacesPerTab>4</spacesPerTab>
+						</indent>
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apply</goal>
+						</goals>
+						<phase>compile</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
