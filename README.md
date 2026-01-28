@@ -1,6 +1,6 @@
 # crawler4j
 
-This repo is a for of [yasserg/crawler4j](https://github.com/yasserg/crawler4j).
+This repo is a fork of [yasserg/crawler4j](https://github.com/yasserg/crawler4j).
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.lankalana/crawler4j.svg?style=flat-square)](https://search.maven.org/search?q=g:com.github.lankalana%20a:crawler4j)
 
